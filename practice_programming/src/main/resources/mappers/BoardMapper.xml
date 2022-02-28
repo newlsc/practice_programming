@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board">
+	<select id="countList" resultType="int">
+		SELECT COUNT(ID) FROM BOARD	
+	</select>
+	<select id="list" resultType="practice.board.dto.BoardDTO">
+		SELECT * FROM BOARD ORDER BY ID DESC LIMIT #{displayPost}, #{postNum}
+	</select>
+	<select id="listDetail" resultType="practice.board.dto.BoardDTO">
+		SELECT * FROM BOARD WHERE ID = #{id}
+	</select>
+	<select id="replyTotal" resultType="int">
+		SELECT COUNT(BOARD_ID) FROM REPLY_BOARD WHERE BOARD_ID = #{id}
+	</select>
+	<select id="reply" resultType="practice.board.dto.BoardDTO">
+		SELECT REPLY_ID, CONTENT, WRITEDATE FROM REPLY_BOARD WHERE BOARD_ID = #{id} ORDER BY REPLY_ID DESC
+	</select>
+	<update id="increaseViews">
+		UPDATE BOARD SET HIT = HIT + 1 WHERE ID = #{id}
+	</update>
+	<insert id="write">
+		INSERT INTO BOARD 
+			(TITLE, CONTENT, WRITER, WRITEDATE, HIT)
+			VALUES 
+			(#{title}, #{content}, #{writer}, NOW(), 0)
+	</insert>
+	<update id="update">
+		UPDATE BOARD SET TITLE = #{title}, CONTENT = #{content}, WRITER = #{writer} WHERE ID = #{id}
+	</update>
+	<delete id="delete">
+		DELETE FROM BOARD WHERE ID = #{id}
+	</delete>
+	<insert id="writeReply">
+		INSERT INTO REPLY_BOARD 
+			(BOARD_ID, CONTENT, WRITEDATE)
+			VALUES
+			(#{id}, #{content}, NOW())
+	</insert>
+	
+</mapper>  

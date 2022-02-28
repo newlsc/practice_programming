@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="account">
+	<select id="idCheck" resultType="string">
+		SELECT ID FROM ACCOUNT_INFO WHERE ID = #{id}
+	</select>
+	<insert id="createAccount">	
+		INSERT INTO ACCOUNT_INFO (ID, PW, CUSTOMER_NAME, CONTACT_NUMBER, CURRENT_BALANCE, CREATED_DATE)
+		VALUES
+		(#{id}, #{pw}, #{customer_name}, #{contact_number}, 10000, NOW())
+	</insert>
+	<insert id="logAccount">
+		INSERT INTO ACCOUNT_LOG (ID, TYPE, AMOUNT, BALANCE, LOG_DATE)
+		VALUES
+		(#{id}, '계좌 개설', 10000, 10000, NOW())
+	</insert>
+	<select id="loginCheck" resultType="string">
+		SELECT ID FROM ACCOUNT_INFO WHERE ID = #{id} AND PW = #{pw}
+	</select>
+	<select id="countList" resultType="int">
+		SELECT COUNT(LOG_SEQ) FROM ACCOUNT_LOG WHERE ID = #{id}
+	</select>
+	
+	<select id="list" resultType="practice.account.dto.AccountDTO">
+		SELECT A.ACCOUNT_NUMBER, A.CUSTOMER_NAME, A.CURRENT_BALANCE, B.BALANCE, B.TYPE, B.AMOUNT, B.LOG_DATE 
+		FROM ACCOUNT_INFO A, ACCOUNT_LOG B 
+		WHERE A.ID = #{id} AND A.ID = B.ID ORDER BY B.LOG_DATE DESC LIMIT #{displayPost}, #{postNum}
+	</select>
+	<select id="balanceCheck" resultType="long">
+		SELECT CURRENT_BALANCE
+		FROM ACCOUNT_INFO
+		WHERE ID = #{id}
+	</select>
+	<update id="updateAccountInfo">
+		<if test='type == "입금"'>
+			UPDATE ACCOUNT_INFO SET CURRENT_BALANCE = CURRENT_BALANCE + #{amount} WHERE ID = #{id}
+		</if>
+		<if test='type == "출금"'>
+			UPDATE ACCOUNT_INFO SET CURRENT_BALANCE = CURRENT_BALANCE - #{amount} WHERE ID = #{id}
+		</if>
+	</update>
+	<insert id="insertAccountLog">
+		INSERT INTO ACCOUNT_LOG (ID, TYPE, AMOUNT, BALANCE, LOG_DATE)
+		VALUES
+		(#{id}, #{type}, #{amount}, (SELECT CURRENT_BALANCE FROM ACCOUNT_INFO WHERE ID = #{id}), NOW())
+	</insert>
+</mapper>  
